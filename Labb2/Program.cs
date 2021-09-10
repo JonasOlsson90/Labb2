@@ -6,7 +6,7 @@ namespace Labb2
     {
         static void Main(string[] args)
         {
-            
+            Menu.MainMenu();
         }
     }
 }
