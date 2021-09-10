@@ -7,6 +7,7 @@ namespace Labb2
     {
         static void Main(string[] args)
         {
+            // Lös det här med listan. Elementen måste ha olika namn för att man ska kunna avgöra om de redan finns där.
             var customers = new List<Customer>();
             Customer loggedInCustomer;
             while (true)
