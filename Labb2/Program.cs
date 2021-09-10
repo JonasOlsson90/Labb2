@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Labb2
 {
@@ -6,7 +7,15 @@ namespace Labb2
     {
         static void Main(string[] args)
         {
-            Menu.MainMenu();
+            var customers = new List<Customer>();
+            Customer loggedInCustomer;
+            while (true)
+            {
+                loggedInCustomer = Menu.MainMenu(customers);
+                if (!customers.Contains(loggedInCustomer))
+                    customers.Add(loggedInCustomer);
+                Console.WriteLine($"{loggedInCustomer.Name} is logged in");
+            }
         }
     }
 }
