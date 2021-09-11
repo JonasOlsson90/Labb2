@@ -8,53 +8,77 @@ namespace Labb2
 {
     class Menu
     {
-        internal static Customer MainMenu(List<Customer> customers)
+        internal static void MainMenu(ref List<Customer> customers, ref int indexOfLoggedInUser)
         {
-            var choices = new string[] { "Create New Account", "Log In", "Exit Shop" };
             var menuName = "Main Menu";
-            while (true)
+            var choices = new string[] { "Create New Account", "Log In", "Exit Shop" };
+            int choice = GraphicMenu(menuName, choices);
+            switch (choice)
             {
-                int choice = GraphicMenu(menuName, choices);
-                switch (choice)
-                {
-                    case 0:
-                        Console.Write("Enter user name: ");
-                        var userNameNew = Console.ReadLine();
-                        Console.Write("Enter password: ");
-                        var userPasswordNew = Console.ReadLine();
-                        return new Customer(userNameNew, userPasswordNew);
-                    case 1:
-                        // Logg In
-                        Console.Write("Enter user name: ");
-                        var userNameExisting = Console.ReadLine();
-                        Console.Write("Enter password: ");
-                        var userPasswordExisting = Console.ReadLine();
-                        foreach (var customer in customers)
+                case 0:
+                    // Create New Account
+                    Console.Write("Enter user name: ");
+                    var customerNameNew = Console.ReadLine();
+                    bool isNameTaken = false;
+                    foreach (var customer in customers)
+                        if (customer.Name == customerNameNew)
                         {
-                            if (userNameExisting == customer.Name)
+                            Console.WriteLine("User name already excists");
+                            isNameTaken = true;
+                            break;
+                        }
+                    if (isNameTaken)
+                        break;
+                    Console.Write("Enter password: ");
+                    var customerPasswordNew = Console.ReadLine();
+                    customers.Add(new Customer(customerNameNew, customerPasswordNew));
+                    //indexOfLogggedInUser = customers.Count - 1;
+                    break;
+                case 1:
+                    // Logg In
+                    // Fixa så att man får försöka igen om man har skrivit in fel lösenord eller användare.
+                    Console.Write("Enter user name: ");
+                    var customerNameExisting = Console.ReadLine();
+                    Console.Write("Enter password: ");
+                    var customerPasswordExisting = Console.ReadLine();
+                    bool isNameFound = false;
+                    for (int i = 0; i < customers.Count; i++)
+                    {
+                        if (customerNameExisting == customers[i].Name)
+                        {
+                            isNameFound = true;
+                            if (customerPasswordExisting == customers[i].Password)
                             {
-                                if (userPasswordExisting == customer.Password)
-                                    return customer;
-                                else
-                                {
-                                    Console.WriteLine("User name or password is incorect. Press enter to continue...");
-                                    Console.ReadLine();
-                                }
+                                indexOfLoggedInUser = i;
+                                break;
                             }
+
                             else
                             {
                                 Console.WriteLine("User name or password is incorect. Press enter to continue...");
                                 Console.ReadLine();
+                                break;
                             }
                         }
-                        break;
-                    case 2:
-                        Environment.Exit(0);
-                        break;
-                    default:
-                        break;
-                }
+                    }
+                    if (!isNameFound)
+                    {
+                        Console.WriteLine("User name or password is incorect. Press enter to continue...");
+                        Console.ReadLine();
+                    }
+                    break;
+                case 2:
+                    // Exit Shop
+                    Environment.Exit(0);
+                    break;
             }
+        }
+
+        internal static void Shop(ref List<Customer> customers, ref int indexOfLoggedInUser)
+        {
+            Console.Write($"{customers[indexOfLoggedInUser].Name} is logged in. Press enter to logg out...");
+            Console.ReadLine();
+            indexOfLoggedInUser = -1;
         }
 
 

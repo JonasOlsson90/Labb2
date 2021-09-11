@@ -7,15 +7,19 @@ namespace Labb2
     {
         static void Main(string[] args)
         {
-            // Lös det här med listan. Elementen måste ha olika namn för att man ska kunna avgöra om de redan finns där.
             var customers = new List<Customer>();
-            Customer loggedInCustomer;
+            int indexOfLoggedInUser = -1;
+            customers.Add(new Customer("Knatte", "123"));
+            customers.Add(new Customer("Fnatte", "321"));
+            customers.Add(new Customer("Tjatte", "213"));
+
             while (true)
             {
-                loggedInCustomer = Menu.MainMenu(customers);
-                if (!customers.Contains(loggedInCustomer))
-                    customers.Add(loggedInCustomer);
-                Console.WriteLine($"{loggedInCustomer.Name} is logged in");
+                if (indexOfLoggedInUser == -1)
+                    Menu.MainMenu(ref customers, ref indexOfLoggedInUser);
+
+                else
+                    Menu.Shop(ref customers, ref indexOfLoggedInUser);
             }
         }
     }
