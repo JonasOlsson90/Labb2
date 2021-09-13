@@ -74,14 +74,37 @@ namespace Labb2
             }
         }
 
+        internal static void LoggedInMenu(ref List<Customer> customer, ref int indexOfLoggedInUser)
+        {
+            var menuName = "Main Menu";
+            var choices = new string[] { "Shop", "View Cart", "Check Out", "Logg Out" };
+            int choice = GraphicMenu(menuName, choices);
+
+            switch (choice)
+            {
+                case 0:
+                    Shop(ref customer, ref indexOfLoggedInUser);
+                    break;
+                case 1:
+                    ViewCart(ref customer, ref indexOfLoggedInUser);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         internal static void Shop(ref List<Customer> customers, ref int indexOfLoggedInUser)
         {
+            // Implementera
             Console.Write($"{customers[indexOfLoggedInUser].Name} is logged in. Press enter to logg out...");
             Console.ReadLine();
             indexOfLoggedInUser = -1;
         }
 
-
+        internal static void ViewCart(ref List<Customer> customers, ref int indexOfLoggedInUser)
+        {
+            // Implementera
+        }
 
         private static int GraphicMenu(string menuName, string[] choices)
         {

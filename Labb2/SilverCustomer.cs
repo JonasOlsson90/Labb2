@@ -8,6 +8,10 @@ namespace Labb2
 {
     class SilverCustomer : Customer
     {
+        internal SilverCustomer(string name, string password) : base(name, password)
+        {
+        }
+
         private double AddDiscount(double originalPrice)
         {
             // return price with 10% discount

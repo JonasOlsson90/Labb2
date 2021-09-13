@@ -12,11 +12,6 @@ namespace Labb2
         public string Password { get; private protected set; }
         public List<Item> Chart { get; private protected set; }
 
-        private protected Customer()
-        {
-
-        }
-
         public Customer(string name, string password)
         {
             // Set name and password
@@ -28,6 +23,7 @@ namespace Labb2
         public void AddToChart(Item item)
         {
             // Add item to chart
+            Chart.Add(item);
         }
 
         public override string ToString()
