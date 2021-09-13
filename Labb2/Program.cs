@@ -5,29 +5,23 @@ namespace Labb2
 {
     class Program
     {
+        internal static int indexOfLoggedInUser = -1;
         static void Main(string[] args)
         {
-            // Gör eventuellt om ref till return av tuple eller returnera användare... Få bort ref!!!
-            var customers = new List<Customer>();
-            Customer loggedInCustomer = null;
-            int indexOfLoggedInUser = -1;
-            customers.Add(new BronzeCustomer("Knatte", "123"));
-            customers.Add(new SilverCustomer("Fnatte", "321"));
-            customers.Add(new GoldCustomer("Tjatte", "213"));
-
-            //loggedInCustomer = customers[0];
-            //loggedInCustomer.AddToChart(new Item());
-            //loggedInCustomer = null;
-            //Console.WriteLine(customers[0].Chart[0]);
-            //Console.ReadLine();
+            Console.CursorVisible = false;
+            var customers = new List<Customer>
+            {
+                new BronzeCustomer("Knatte", "123"),
+                new SilverCustomer("Fnatte", "321"),
+                new GoldCustomer("Tjatte", "213")
+            };
 
             while (true)
             {
                 if (indexOfLoggedInUser == -1)
-                    Menu.MainMenu(ref customers, ref indexOfLoggedInUser);
-
+                    Menu.MainMenu(customers);
                 else
-                    Menu.LoggedInMenu(ref customers, ref indexOfLoggedInUser);
+                    Menu.LoggedInMenu(customers);
             }
         }
     }

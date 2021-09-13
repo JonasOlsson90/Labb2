@@ -8,9 +8,9 @@ namespace Labb2
 {
     class Item
     {
-        private protected string Name { get; set; }
-        private protected double Price { get; set; }
-        private protected int Amount { get; set; }
+        public string Name { get; private protected set; }
+        public double Price { get; private protected set; }
+        public int Amount { get; private protected set; }
 
         private string SetName(string name)
         {

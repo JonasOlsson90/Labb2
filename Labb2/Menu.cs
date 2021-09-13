@@ -8,7 +8,7 @@ namespace Labb2
 {
     class Menu
     {
-        internal static void MainMenu(ref List<Customer> customers, ref int indexOfLoggedInUser)
+        internal static void MainMenu(List<Customer> customers)
         {
             var menuName = "Main Menu";
             var choices = new string[] { "Create New Account", "Log In", "Exit Shop" };
@@ -23,7 +23,8 @@ namespace Labb2
                     foreach (var customer in customers)
                         if (customer.Name == customerNameNew)
                         {
-                            Console.WriteLine("User name already excists");
+                            Console.Write("User name already excists. Press any key to continue...");
+                            Console.ReadLine();
                             isNameTaken = true;
                             break;
                         }
@@ -32,7 +33,7 @@ namespace Labb2
                     Console.Write("Enter password: ");
                     var customerPasswordNew = Console.ReadLine();
                     customers.Add(new Customer(customerNameNew, customerPasswordNew));
-                    //indexOfLogggedInUser = customers.Count - 1;
+                    Program.indexOfLoggedInUser = customers.Count - 1;
                     break;
                 case 1:
                     // Logg In
@@ -49,13 +50,13 @@ namespace Labb2
                             isNameFound = true;
                             if (customerPasswordExisting == customers[i].Password)
                             {
-                                indexOfLoggedInUser = i;
+                                Program.indexOfLoggedInUser = i;
                                 break;
                             }
 
                             else
                             {
-                                Console.WriteLine("User name or password is incorect. Press enter to continue...");
+                                Console.Write("User name or password is incorect. Press enter to continue...");
                                 Console.ReadLine();
                                 break;
                             }
@@ -74,7 +75,7 @@ namespace Labb2
             }
         }
 
-        internal static void LoggedInMenu(ref List<Customer> customer, ref int indexOfLoggedInUser)
+        internal static void LoggedInMenu(List<Customer> customer)
         {
             var menuName = "Main Menu";
             var choices = new string[] { "Shop", "View Cart", "Check Out", "Logg Out" };
@@ -83,36 +84,69 @@ namespace Labb2
             switch (choice)
             {
                 case 0:
-                    Shop(ref customer, ref indexOfLoggedInUser);
+                    Shop(customer);
                     break;
                 case 1:
-                    ViewCart(ref customer, ref indexOfLoggedInUser);
+                    ViewCart(customer);
+                    break;
+                case 2:
+                    CheckOut(customer);
+                    break;
+                case 3:
+                    LoggOut();
                     break;
                 default:
                     break;
             }
         }
 
-        internal static void Shop(ref List<Customer> customers, ref int indexOfLoggedInUser)
+        internal static void Shop(List<Customer> customers)
         {
             // Implementera
-            Console.Write($"{customers[indexOfLoggedInUser].Name} is logged in. Press enter to logg out...");
+            Console.Write($"{customers[Program.indexOfLoggedInUser].Name} is logged in. Press enter to logg out...");
             Console.ReadLine();
-            indexOfLoggedInUser = -1;
+            Program.indexOfLoggedInUser = -1;
         }
 
-        internal static void ViewCart(ref List<Customer> customers, ref int indexOfLoggedInUser)
+        internal static void ViewCart(List<Customer> customers)
         {
             // Implementera
+        }
+
+        internal static void CheckOut(List<Customer> customers)
+        {
+            // Implementera
+        }
+
+        internal static void LoggOut()
+        {
+            // Implementera
+            var menuName = "Are You Sure?";
+            var choices = new string[] { "No", "Yes" };
+            int choice = GraphicMenu(menuName, choices);
+
+            switch (choice)
+            {
+                case 0:
+                    // No
+                    break;
+                case 1:
+                    // Yes
+                    Program.indexOfLoggedInUser = -1;
+                    break;
+                default:
+                    break;
+            }
         }
 
         private static int GraphicMenu(string menuName, string[] choices)
         {
             var choice = 0;
             var line = new string('-', menuName.Length + 2);
+            Console.Clear();
             while (true)
             {
-                Console.Clear();
+                Console.SetCursorPosition(0, 0);
                 Console.WriteLine(menuName);
                 Console.WriteLine(line);
 
