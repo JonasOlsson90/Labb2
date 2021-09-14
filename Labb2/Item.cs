@@ -16,7 +16,7 @@ namespace Labb2
         {
             Name = name;
             Price = prize;
-            Amount = 0;
+            Amount = 1;
         }
 
         internal void ChangeAmount(int amount)

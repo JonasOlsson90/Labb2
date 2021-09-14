@@ -10,7 +10,7 @@ namespace Labb2
     {
         public string Name { get; private protected set; }
         public string Password { get; private protected set; }
-        public List<Item> Chart { get; private protected set; }
+        public List<Item> Cart { get; private protected set; }
         // Fixa!
         public string PreferedCurrency { get; private protected set; }
 
@@ -19,14 +19,30 @@ namespace Labb2
             // Set name and password
             Name = name;
             Password = password;
-            Chart = new List<Item>();
+            Cart = new List<Item>();
             PreferedCurrency = "SEK";
         }
 
-        public void AddToChart(Item item)
+        public void AddToCart(Item item)
         {
             // Add item to chart
-            Chart.Add(item);
+            if (!Cart.Any(x => x.Name == item.Name))
+            {
+                Cart.Add(item);
+                Console.Clear();
+                Console.Write($"{item.Name} Has been added to your cart!\nPress enter to continue shoping...");
+                Console.ReadLine();
+            }
+            else
+            {
+                for (int i = 0; i < Cart.Count; i++)
+                    if (Cart[i].Name == item.Name)
+                    {
+                        Cart[i].ChangeAmount(1);
+                        Console.WriteLine($"One more {Cart[i].Name} has been added to your cart.\nCart now contains {Cart[i].Amount} {Cart[i].Name}s!\nPress enter to continue shoping...");
+                        Console.ReadLine();
+                    }
+            }
         }
 
 

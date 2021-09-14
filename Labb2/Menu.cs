@@ -114,11 +114,8 @@ namespace Labb2
 
             var choices = new string[items.Length + 1];
             for (int i = 0; i < items.Length; i++)
-            {
                 // Fixa valutor
-                string temp = $"{items[i].Name}\n{items[i].Price} {customers[Program.indexOfLoggedInUser].PreferedCurrency}";
-                choices[i] = temp;
-            }
+                choices[i] = $"{items[i].Name}\n{items[i].Price} {customers[Program.indexOfLoggedInUser].PreferedCurrency}";
             choices[choices.Length - 1] = "Go Back";
 
             while (true)
@@ -126,14 +123,7 @@ namespace Labb2
                 int choice = GraphicMenu(menuName, choices);
 
                 if (choice < items.Length && choice >= 0)
-                {
-                    // Fixa så att man kan lägga till antal och kolla om det redan finns i varukorgen! 
-                    customers[Program.indexOfLoggedInUser].AddToChart(items[choice]);
-                    Console.Clear();
-                    Console.Write($"{items[choice].Name} Has been added to your chart!\nPress enter to continue shoping...");
-                    Console.ReadLine();
-                }
-
+                    customers[Program.indexOfLoggedInUser].AddToCart(items[choice]);
                 else
                     break;
             }
