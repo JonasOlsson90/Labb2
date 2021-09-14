@@ -12,16 +12,16 @@ namespace Labb2
         public double Price { get; private protected set; }
         public int Amount { get; private protected set; }
 
-        private string SetName(string name)
+        internal Item(string name, double prize, int amount)
         {
-            // 
-            return "";
+            Name = name;
+            Price = prize;
+            Amount = amount;
         }
 
-        private protected double SetPrice(double price)
+        internal void ChangeAmount(int amount)
         {
-            //
-            return 0.0;
+            Amount += amount;
         }
     }
 }

@@ -103,9 +103,29 @@ namespace Labb2
         internal static void Shop(List<Customer> customers)
         {
             // Implementera
-            Console.Write($"{customers[Program.indexOfLoggedInUser].Name} is logged in. Press enter to logg out...");
-            Console.ReadLine();
-            Program.indexOfLoggedInUser = -1;
+            var menuName = "Shop";
+            var choices = new string[] { "400 SEK   || Potion of Healing", "400 SEK   || Potion of Climbing", "1600 SEK  || Potion of Animal Friendship", "16000 SEK || Potion of Supreme Healing", "Go Back" };
+            int choice = GraphicMenu(menuName, choices);
+            switch (choice)
+            {
+                case 0:
+                    // Potion of Healing
+                    break;
+                case 1:
+                    // Potion of Climbing
+                    break;
+                case 2:
+                    // Potion of Animal Friendship
+                    break;
+                case 3:
+                    // Potion of Supreme Healing
+                    break;
+                case 4:
+                    // Go Back
+                    break;
+                default:
+                    break;
+            }
         }
 
         internal static void ViewCart(List<Customer> customers)
@@ -132,6 +152,7 @@ namespace Labb2
                     break;
                 case 1:
                     // Yes
+                    // Spara ner allt till fil.
                     Program.indexOfLoggedInUser = -1;
                     break;
                 default:
