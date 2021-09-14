@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Labb2
 {
-    class SilverCustomer : Customer
+    class SilverCustomer : Customer, IDiscount
     {
         internal SilverCustomer(string name, string password) : base(name, password)
         {
         }
 
-        private double AddDiscount(double originalPrice)
+        public double AddDiscount(double originalPrice)
         {
             // return price with 10% discount
             return 0.0;

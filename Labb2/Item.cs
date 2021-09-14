@@ -12,11 +12,11 @@ namespace Labb2
         public double Price { get; private protected set; }
         public int Amount { get; private protected set; }
 
-        internal Item(string name, double prize, int amount)
+        internal Item(string name, double prize)
         {
             Name = name;
             Price = prize;
-            Amount = amount;
+            Amount = 0;
         }
 
         internal void ChangeAmount(int amount)

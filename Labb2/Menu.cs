@@ -75,8 +75,9 @@ namespace Labb2
             }
         }
 
-        internal static void LoggedInMenu(List<Customer> customer)
+        internal static void LoggedInMenu(List<Customer> customers)
         {
+            // Lägg till change currency
             var menuName = "Main Menu";
             var choices = new string[] { "Shop", "View Cart", "Check Out", "Logg Out" };
             int choice = GraphicMenu(menuName, choices);
@@ -84,13 +85,13 @@ namespace Labb2
             switch (choice)
             {
                 case 0:
-                    Shop(customer);
+                    Shop(customers);
                     break;
                 case 1:
-                    ViewCart(customer);
+                    ViewCart(customers);
                     break;
                 case 2:
-                    CheckOut(customer);
+                    CheckOut(customers);
                     break;
                 case 3:
                     LoggOut();
@@ -102,28 +103,38 @@ namespace Labb2
 
         internal static void Shop(List<Customer> customers)
         {
-            // Implementera
             var menuName = "Shop";
-            var choices = new string[] { "400 SEK   || Potion of Healing", "400 SEK   || Potion of Climbing", "1600 SEK  || Potion of Animal Friendship", "16000 SEK || Potion of Supreme Healing", "Go Back" };
-            int choice = GraphicMenu(menuName, choices);
-            switch (choice)
+            var items = new Item[]
             {
-                case 0:
-                    // Potion of Healing
-                    break;
-                case 1:
-                    // Potion of Climbing
-                    break;
-                case 2:
-                    // Potion of Animal Friendship
-                    break;
-                case 3:
-                    // Potion of Supreme Healing
-                    break;
-                case 4:
-                    // Go Back
-                    break;
-                default:
+                new Item("Potion of Healing", 400),
+                new Item("Potion of Climbing", 400),
+                new Item("Potion of Animal Friendship", 1600),
+                new Item("Potion of Supreme Healing", 16000)
+            };
+
+            var choices = new string[items.Length + 1];
+            for (int i = 0; i < items.Length; i++)
+            {
+                // Fixa valutor
+                string temp = $"{items[i].Name}\n{items[i].Price} {customers[Program.indexOfLoggedInUser].PreferedCurrency}";
+                choices[i] = temp;
+            }
+            choices[choices.Length - 1] = "Go Back";
+
+            while (true)
+            {
+                int choice = GraphicMenu(menuName, choices);
+
+                if (choice < items.Length && choice >= 0)
+                {
+                    // Fixa så att man kan lägga till antal och kolla om det redan finns i varukorgen! 
+                    customers[Program.indexOfLoggedInUser].AddToChart(items[choice]);
+                    Console.Clear();
+                    Console.Write($"{items[choice].Name} Has been added to your chart!\nPress enter to continue shoping...");
+                    Console.ReadLine();
+                }
+
+                else
                     break;
             }
         }

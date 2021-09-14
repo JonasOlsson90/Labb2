@@ -11,6 +11,8 @@ namespace Labb2
         public string Name { get; private protected set; }
         public string Password { get; private protected set; }
         public List<Item> Chart { get; private protected set; }
+        // Fixa!
+        public string PreferedCurrency { get; private protected set; }
 
         public Customer(string name, string password)
         {
@@ -18,6 +20,7 @@ namespace Labb2
             Name = name;
             Password = password;
             Chart = new List<Item>();
+            PreferedCurrency = "SEK";
         }
 
         public void AddToChart(Item item)
@@ -25,6 +28,8 @@ namespace Labb2
             // Add item to chart
             Chart.Add(item);
         }
+
+
 
         public override string ToString()
         {
