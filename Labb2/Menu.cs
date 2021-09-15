@@ -117,11 +117,8 @@ namespace Labb2
 
             var choices = new string[items.Length + 1];
             for (int i = 0; i < items.Length; i++)
-                // Fixa valutor
-                choices[i] = $"{items[i].Name}\n" +
-                    $"{items[i].Price / customers[Program.indexOfLoggedInUser].CurrencyNameValue[(customers[Program.indexOfLoggedInUser].PreferedCurrency)]} " +
-                    $"{customers[Program.indexOfLoggedInUser].PreferedCurrency}";
-            choices[choices.Length - 1] = "Go Back";
+                choices[i] = $"{items[i].Name}\n{ConvertPrice(customers, items[i].Price)} {customers[Program.indexOfLoggedInUser].PreferedCurrency}";
+            choices[^1] = "Go Back";
 
             while (true)
             {
@@ -166,13 +163,17 @@ namespace Labb2
             }
         }
 
-        public static string ChangeCurrency(List<Customer> customers)
+        internal static void ChangeCurrency(List<Customer> customers)
         {
             var menuName = "Change Currency";
-            var choices = customers[Program.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray(); // Fixa alla dictionarytjofräser till array
+            var choices = customers[Program.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray();
             int choice = GraphicMenu(menuName, choices);
             customers[Program.indexOfLoggedInUser].ChangeCurrency(choices[choice]);
-            return "";
+        }
+
+        private static double ConvertPrice(List<Customer> customers, double price)
+        {
+            return Math.Round(price / customers[Program.indexOfLoggedInUser].CurrencyNameValue[(customers[Program.indexOfLoggedInUser].PreferedCurrency)], 2);
         }
 
         private static int GraphicMenu(string menuName, string[] choices)
