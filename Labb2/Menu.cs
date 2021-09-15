@@ -16,57 +16,11 @@ namespace Labb2
             switch (choice)
             {
                 case 0:
-                    // Create New Account
-                    Console.Write("Enter user name: ");
-                    var customerNameNew = Console.ReadLine();
-                    bool isNameTaken = false;
-                    foreach (var customer in customers)
-                        if (customer.Name == customerNameNew)
-                        {
-                            Console.Write("User name already excists. Press any key to continue...");
-                            Console.ReadLine();
-                            isNameTaken = true;
-                            break;
-                        }
-                    if (isNameTaken)
-                        break;
-                    Console.Write("Enter password: ");
-                    var customerPasswordNew = Console.ReadLine();
-                    customers.Add(new Customer(customerNameNew, customerPasswordNew));
-                    Program.indexOfLoggedInUser = customers.Count - 1;
+                    CreateNewAcount(customers);
                     break;
                 case 1:
                     // Logg In
-                    // Fixa så att man får försöka igen om man har skrivit in fel lösenord eller användare.
-                    Console.Write("Enter user name: ");
-                    var customerNameExisting = Console.ReadLine();
-                    Console.Write("Enter password: ");
-                    var customerPasswordExisting = Console.ReadLine();
-                    bool isNameFound = false;
-                    for (int i = 0; i < customers.Count; i++)
-                    {
-                        if (customerNameExisting == customers[i].Name)
-                        {
-                            isNameFound = true;
-                            if (customerPasswordExisting == customers[i].Password)
-                            {
-                                Program.indexOfLoggedInUser = i;
-                                break;
-                            }
-
-                            else
-                            {
-                                Console.Write("User name or password is incorect. Press enter to continue...");
-                                Console.ReadLine();
-                                break;
-                            }
-                        }
-                    }
-                    if (!isNameFound)
-                    {
-                        Console.WriteLine("User name or password is incorect. Press enter to continue...");
-                        Console.ReadLine();
-                    }
+                    while (!LogIn(customers)) { }
                     break;
                 case 2:
                     // Exit Shop
@@ -77,7 +31,6 @@ namespace Labb2
 
         internal static void LoggedInMenu(List<Customer> customers)
         {
-            // Lägg till change currency
             var menuName = "Main Menu";
             var choices = new string[] { "Shop", "View Cart", "Change Currency", "Check Out", "Logg Out" };
             int choice = GraphicMenu(menuName, choices);
@@ -104,7 +57,55 @@ namespace Labb2
             }
         }
 
-        internal static void Shop(List<Customer> customers)
+        internal static void CreateNewAcount(List<Customer> customers)
+        {
+            Console.Write("Enter user name: ");
+            var customerNameNew = Console.ReadLine();
+            bool isNameTaken = false;
+            foreach (var customer in customers)
+                if (customer.Name == customerNameNew)
+                {
+                    Console.Write("User name already excists. Press any key to continue...");
+                    Console.ReadLine();
+                    isNameTaken = true;
+                    break;
+                }
+            if (isNameTaken)
+                return;
+            Console.Write("Enter password: ");
+            var customerPasswordNew = Console.ReadLine();
+            customers.Add(new Customer(customerNameNew, customerPasswordNew));
+            Program.indexOfLoggedInUser = customers.Count - 1;
+        }
+
+        private static bool LogIn(List<Customer> customers)
+        {
+            var menuName = "User name or password is incorect. Do you wish to try again?";
+            var choices = new string[] { "Yes", "No" };
+            Console.Write("Enter user name: ");
+            var customerNameExisting = Console.ReadLine();
+            Console.Write("Enter password: ");
+            var customerPasswordExisting = Console.ReadLine();
+            //bool isNameFound = false;
+            for (int i = 0; i < customers.Count; i++)
+            {
+                if (customerNameExisting == customers[i].Name)
+                {
+                    //isNameFound = true;
+                    if (customerPasswordExisting == customers[i].Password)
+                    {
+                        Program.indexOfLoggedInUser = i;
+                        return true;
+                    }
+
+                    else
+                        return GraphicMenu(menuName, choices) == 1;
+                }
+            }
+            return GraphicMenu(menuName, choices) == 1;
+        }
+
+        private static void Shop(List<Customer> customers)
         {
             var menuName = "Shop";
             var items = new Item[]
@@ -131,17 +132,34 @@ namespace Labb2
             }
         }
 
-        internal static void ViewCart(List<Customer> customers)
+        private static void ViewCart(List<Customer> customers)
         {
-            // Implementera
+            var totalSumOfCart = 0.0D;
+            Console.Clear();
+            Console.WriteLine(customers[Program.indexOfLoggedInUser].Name);
+            Console.WriteLine(new string('-', customers[Program.indexOfLoggedInUser].Name.Length + 2));
+            Console.WriteLine("Cart:\n");
+            foreach (var item in customers[Program.indexOfLoggedInUser].Cart)
+            {
+                Console.WriteLine($"{item.Name}");
+                Console.WriteLine($"Price: {ConvertPrice(customers, item.Price)} {customers[Program.indexOfLoggedInUser].PreferedCurrency}");
+                Console.WriteLine($"Qty {item.Amount}");
+                Console.WriteLine($"Total: {ConvertPrice(customers, item.Price) * item.Amount} {customers[Program.indexOfLoggedInUser].PreferedCurrency}\n");
+                totalSumOfCart += ConvertPrice(customers, item.Price) * item.Amount;
+            }
+            Console.WriteLine($"Total sum: {Math.Round(totalSumOfCart, 2)} {customers[Program.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)");
+            Console.WriteLine();
+            Console.Write("Press enter to continue shopping...");
+            Console.ReadLine();
         }
 
-        internal static void CheckOut(List<Customer> customers)
+        private static void CheckOut(List<Customer> customers)
         {
-            // Implementera
+            //ToDo: Implementera
+            // Lägg in "Pay by owl" och "Visa/Mastercard" som betalmetoder
         }
 
-        internal static void LoggOut()
+        private static void LoggOut()
         {
             // Implementera
             var menuName = "Are You Sure?";
@@ -163,7 +181,7 @@ namespace Labb2
             }
         }
 
-        internal static void ChangeCurrency(List<Customer> customers)
+        private static void ChangeCurrency(List<Customer> customers)
         {
             var menuName = "Change Currency";
             var choices = customers[Program.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray();
