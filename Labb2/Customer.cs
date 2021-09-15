@@ -13,6 +13,9 @@ namespace Labb2
         public List<Item> Cart { get; private protected set; }
         // Fixa!
         public string PreferedCurrency { get; private protected set; }
+        // Använd enum istället kanske?
+        public Dictionary<string, double> CurrencyNameValue = new() { { "SEK", 1.0 }, { "USD", 8.58 }, {"GP", 4.0 } };
+        
 
         public Customer(string name, string password)
         {
@@ -20,6 +23,7 @@ namespace Labb2
             Name = name;
             Password = password;
             Cart = new List<Item>();
+            // Sätt valuta
             PreferedCurrency = "SEK";
         }
 
@@ -45,7 +49,10 @@ namespace Labb2
             }
         }
 
-
+        public void ChangeCurrency(string currency)
+        {
+            PreferedCurrency = currency;
+        }
 
         public override string ToString()
         {

@@ -79,7 +79,7 @@ namespace Labb2
         {
             // Lägg till change currency
             var menuName = "Main Menu";
-            var choices = new string[] { "Shop", "View Cart", "Check Out", "Logg Out" };
+            var choices = new string[] { "Shop", "View Cart", "Change Currency", "Check Out", "Logg Out" };
             int choice = GraphicMenu(menuName, choices);
 
             switch (choice)
@@ -91,9 +91,12 @@ namespace Labb2
                     ViewCart(customers);
                     break;
                 case 2:
-                    CheckOut(customers);
+                    ChangeCurrency(customers);
                     break;
                 case 3:
+                    CheckOut(customers);
+                    break;
+                case 4:
                     LoggOut();
                     break;
                 default:
@@ -115,7 +118,9 @@ namespace Labb2
             var choices = new string[items.Length + 1];
             for (int i = 0; i < items.Length; i++)
                 // Fixa valutor
-                choices[i] = $"{items[i].Name}\n{items[i].Price} {customers[Program.indexOfLoggedInUser].PreferedCurrency}";
+                choices[i] = $"{items[i].Name}\n" +
+                    $"{items[i].Price / customers[Program.indexOfLoggedInUser].CurrencyNameValue[(customers[Program.indexOfLoggedInUser].PreferedCurrency)]} " +
+                    $"{customers[Program.indexOfLoggedInUser].PreferedCurrency}";
             choices[choices.Length - 1] = "Go Back";
 
             while (true)
@@ -159,6 +164,15 @@ namespace Labb2
                 default:
                     break;
             }
+        }
+
+        public static string ChangeCurrency(List<Customer> customers)
+        {
+            var menuName = "Change Currency";
+            var choices = customers[Program.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray(); // Fixa alla dictionarytjofräser till array
+            int choice = GraphicMenu(menuName, choices);
+            customers[Program.indexOfLoggedInUser].ChangeCurrency(choices[choice]);
+            return "";
         }
 
         private static int GraphicMenu(string menuName, string[] choices)
