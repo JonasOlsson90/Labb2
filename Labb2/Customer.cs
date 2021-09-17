@@ -28,8 +28,8 @@ namespace Labb2
 
         public void AddToCart(Item item)
         {
-            // Add item to chart
-            if (!Cart.Any(x => x.Name == item.Name))
+            // Add item to cart
+            if (!Cart.Any(product => product.Name == item.Name))
             {
                 Cart.Add(item);
                 Console.Clear();
@@ -48,14 +48,21 @@ namespace Labb2
             }
         }
 
-        public void ChangeCurrency(string currency)
+        internal void ChangeCurrency(string currency)
         {
             PreferedCurrency = currency;
         }
 
         public override string ToString()
         {
-            return base.ToString();
+            //ToDo Implementera
+
+            string customerInfo = $"Name: {Name}\nPassword: {Password}\n\nCart:\n\n";
+
+            foreach (var item in Cart)
+                customerInfo += $"Item: {item.Name}\nPrice: {Math.Round(item.Price / CurrencyNameValue[PreferedCurrency], 2)} {PreferedCurrency}\nAmount: {item.Amount}\n\n";
+
+            return customerInfo;
         }
     }
 }

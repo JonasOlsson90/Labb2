@@ -32,7 +32,7 @@ namespace Labb2
         internal static void LoggedInMenu(List<Customer> customers)
         {
             var menuName = "Main Menu";
-            var choices = new string[] { "Shop", "View Cart", "Change Currency", "Check Out", "Logg Out" };
+            var choices = new string[] { "Shop", "View Cart", "Change Currency", "Check Out", customers[Program.indexOfLoggedInUser].Name, "Logg Out" };
             int choice = GraphicMenu(menuName, choices);
 
             switch (choice)
@@ -42,14 +42,27 @@ namespace Labb2
                     break;
                 case 1:
                     ViewCart(customers);
+                    Console.Write("Press enter to continue shopping...");
+                    Console.ReadLine();
                     break;
                 case 2:
                     ChangeCurrency(customers);
                     break;
                 case 3:
+                    // Check Out
+                    ViewCart(customers);
+                    Console.Write("Press enter to go to payment methods...");
+                    Console.ReadLine();
                     CheckOut(customers);
                     break;
                 case 4:
+                    // Customer info (visas endast som namnet på den inloggade kunden i menyn).
+                    Console.WriteLine(customers[Program.indexOfLoggedInUser].ToString());
+                    Console.WriteLine();
+                    Console.Write("Press enter to go back...");
+                    Console.ReadLine();
+                    break;
+                case 5:
                     LoggOut();
                     break;
                 default:
@@ -57,7 +70,7 @@ namespace Labb2
             }
         }
 
-        internal static void CreateNewAcount(List<Customer> customers)
+        private static void CreateNewAcount(List<Customer> customers)
         {
             Console.Write("Enter user name: ");
             var customerNameNew = Console.ReadLine();
@@ -149,14 +162,92 @@ namespace Labb2
             }
             Console.WriteLine($"Total sum: {Math.Round(totalSumOfCart, 2)} {customers[Program.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)");
             Console.WriteLine();
-            Console.Write("Press enter to continue shopping...");
-            Console.ReadLine();
         }
 
         private static void CheckOut(List<Customer> customers)
         {
-            //ToDo: Implementera
-            // Lägg in "Pay by owl" och "Visa/Mastercard" som betalmetoder
+            var menuName = "Payment Methods";
+            var choices = new string[] { "Visa/Mastercard", "Pay by Owl", "Continue shopping" };
+            int choice = GraphicMenu(menuName, choices);
+            switch (choice)
+            {
+                case 0:
+                    // Visa/Mastecard
+                    if (ValidateVisa())
+                        PaymentSuccessfull(customers);
+                    else
+                    {
+                        Console.Write("No valid Visa/Mastercard. Press enter to go back to payment methods...");
+                        Console.ReadLine();
+                        CheckOut(customers);
+                    }                    
+                    break;
+                case 1:
+                    PayByOwl(customers);
+                    break;
+                case 2:
+                    // Continue shopping
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static bool ValidateVisa()
+        {
+            Console.Clear();
+            Console.Write("Enter card number (16 digits): ");
+            string cardNumber = Console.ReadLine();
+            Console.Write("Enter expiration date (4 digits): ");
+            string cardExpirationDate = Console.ReadLine();
+            Console.Write("Enter name of Cardholder: ");
+            string cardholder = Console.ReadLine();
+            Console.Write("Enter card CVC (3 digits): ");
+            string cardCVC = Console.ReadLine();
+
+            if (cardNumber.Length != 16 || cardExpirationDate.Length != 4 || cardCVC.Length != 3)
+                return false;
+            foreach (var digit in cardNumber)
+                if (!char.IsDigit(digit))
+                    return false;
+            foreach (var digit in cardExpirationDate)
+                if (!char.IsDigit(digit))
+                    return false;
+            foreach (var digit in cardCVC)
+                if (!char.IsDigit(digit))
+                    return false;
+            if (string.IsNullOrEmpty(cardholder))
+                return false;
+
+            return true;
+        }
+
+        private static void PayByOwl(List<Customer> customers)
+        {
+            var totalSumOfCart = ConvertPrice(customers, customers[Program.indexOfLoggedInUser].Cart.Sum(item => item.Price * item.Amount));
+
+            Console.Clear();
+            Console.WriteLine($"Send an owl with {totalSumOfCart} {customers[Program.indexOfLoggedInUser].PreferedCurrency} to:");
+            Console.WriteLine("Cloudberry Path 7");
+            Console.WriteLine("Brugmansia Forest 777 77");
+            Console.WriteLine("Feywild");
+            Console.WriteLine();
+            Console.WriteLine("The delivery moose will know if payment is on its way or not.");
+            Console.WriteLine("Our advice is not to try any tricks, but it's down to you.");
+            Console.Write("Press enter to continue...");
+            Console.ReadLine();
+            PaymentSuccessfull(customers);
+        }
+
+        private static void PaymentSuccessfull(List<Customer> customers)
+        {
+            Console.Clear();
+            Console.WriteLine("Payment successfull!");
+            Console.WriteLine("Your order will be delivered by moose.");
+            Console.WriteLine("The moose will magically know exactly were you are and will arrive within 1-5 business days.");
+            customers[Program.indexOfLoggedInUser].Cart.Clear();
+            Console.Write("Press enter to go back to store...");
+            Console.ReadLine();
         }
 
         private static void LoggOut()
