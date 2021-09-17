@@ -55,8 +55,6 @@ namespace Labb2
 
         public override string ToString()
         {
-            //ToDo Implementera
-
             string customerInfo = $"Name: {Name}\nPassword: {Password}\n\nCart:\n\n";
 
             foreach (var item in Cart)

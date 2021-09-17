@@ -15,7 +15,7 @@ namespace Labb2
         public double AddDiscount(double originalPrice)
         {
             // return price with 5% d
-            return 0.0;
+            return originalPrice * 0.95;
         }
     }
 }

@@ -50,6 +50,12 @@ namespace Labb2
                     break;
                 case 3:
                     // Check Out
+                    if (customers[Program.indexOfLoggedInUser].Cart.Count == 0)
+                    {
+                        Console.Write("Cart is empty. Press enter to continue shopping...");
+                        Console.ReadLine();
+                        break;
+                    }
                     ViewCart(customers);
                     Console.Write("Press enter to go to payment methods...");
                     Console.ReadLine();
@@ -145,6 +151,7 @@ namespace Labb2
             }
         }
 
+        //ToDO Implementera IDIscount
         private static void ViewCart(List<Customer> customers)
         {
             var totalSumOfCart = 0.0D;
@@ -160,8 +167,12 @@ namespace Labb2
                 Console.WriteLine($"Total: {ConvertPrice(customers, item.Price) * item.Amount} {customers[Program.indexOfLoggedInUser].PreferedCurrency}\n");
                 totalSumOfCart += ConvertPrice(customers, item.Price) * item.Amount;
             }
-            Console.WriteLine($"Total sum: {Math.Round(totalSumOfCart, 2)} {customers[Program.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)");
-            Console.WriteLine();
+            Console.WriteLine($"Total sum: {Math.Round(totalSumOfCart, 2)} {customers[Program.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
+
+            if (customers[Program.indexOfLoggedInUser] is IDiscount discountableCustomer)
+                totalSumOfCart = Math.Round(discountableCustomer.AddDiscount(totalSumOfCart), 2);
+
+            Console.WriteLine($"Your price: {totalSumOfCart} {customers[Program.indexOfLoggedInUser].PreferedCurrency}\n");
         }
 
         private static void CheckOut(List<Customer> customers)
@@ -225,6 +236,9 @@ namespace Labb2
         private static void PayByOwl(List<Customer> customers)
         {
             var totalSumOfCart = ConvertPrice(customers, customers[Program.indexOfLoggedInUser].Cart.Sum(item => item.Price * item.Amount));
+
+            if (customers[Program.indexOfLoggedInUser] is IDiscount discountableCustomer)
+                totalSumOfCart = Math.Round(discountableCustomer.AddDiscount(totalSumOfCart), 2);
 
             Console.Clear();
             Console.WriteLine($"Send an owl with {totalSumOfCart} {customers[Program.indexOfLoggedInUser].PreferedCurrency} to:");
