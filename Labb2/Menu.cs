@@ -8,6 +8,7 @@ namespace Labb2
 {
     class Menu
     {
+        //ToDo Implementera filläsning och filskrivning
         internal static void MainMenu(List<Customer> customers)
         {
             var menuName = "Main Menu";
@@ -20,10 +21,11 @@ namespace Labb2
                     break;
                 case 1:
                     // Logg In
-                    while (!LogIn(customers)) { }
+                    LogIn(customers);
                     break;
                 case 2:
                     // Exit Shop
+                    Console.CursorVisible = true;
                     Environment.Exit(0);
                     break;
             }
@@ -32,7 +34,7 @@ namespace Labb2
         internal static void LoggedInMenu(List<Customer> customers)
         {
             var menuName = "Main Menu";
-            var choices = new string[] { "Shop", "View Cart", "Change Currency", "Check Out", customers[Program.indexOfLoggedInUser].Name, "Logg Out" };
+            var choices = new string[] { "Shop", "View Cart", "Change Currency", "Check Out", customers[Customer.indexOfLoggedInUser].Name, "Logg Out" };
             int choice = GraphicMenu(menuName, choices);
 
             switch (choice)
@@ -50,7 +52,7 @@ namespace Labb2
                     break;
                 case 3:
                     // Check Out
-                    if (customers[Program.indexOfLoggedInUser].Cart.Count == 0)
+                    if (customers[Customer.indexOfLoggedInUser].Cart.Count == 0)
                     {
                         Console.Write("Cart is empty. Press enter to continue shopping...");
                         Console.ReadLine();
@@ -63,7 +65,7 @@ namespace Labb2
                     break;
                 case 4:
                     // Customer info (visas endast som namnet på den inloggade kunden i menyn).
-                    Console.WriteLine(customers[Program.indexOfLoggedInUser].ToString());
+                    Console.WriteLine(customers[Customer.indexOfLoggedInUser].ToString());
                     Console.WriteLine();
                     Console.Write("Press enter to go back...");
                     Console.ReadLine();
@@ -81,6 +83,12 @@ namespace Labb2
             Console.Write("Enter user name: ");
             var customerNameNew = Console.ReadLine();
             bool isNameTaken = false;
+            if (string.IsNullOrEmpty(customerNameNew))
+            {
+                Console.Write("You have to enter a user name. Press enter to continue...");
+                Console.ReadLine();
+                return;
+            }
             foreach (var customer in customers)
                 if (customer.Name == customerNameNew)
                 {
@@ -94,34 +102,57 @@ namespace Labb2
             Console.Write("Enter password: ");
             var customerPasswordNew = Console.ReadLine();
             customers.Add(new Customer(customerNameNew, customerPasswordNew));
-            Program.indexOfLoggedInUser = customers.Count - 1;
+            Customer.indexOfLoggedInUser = customers.Count - 1;
         }
 
-        private static bool LogIn(List<Customer> customers)
+        private static void LogIn(List<Customer> customers)
         {
-            var menuName = "User name or password is incorect. Do you wish to try again?";
-            var choices = new string[] { "Yes", "No" };
+            // Till Niklas:
+            // Jag har medvetet valt att inte särskilja om lösenordet eller användarnamnet är felaktigt.
+            // Detta är för att jag har förstått att det anses vara lite av en säkerhetsrisk på hemsidor då man lätt kan få reda på om ett konto existerar och börja prova lösenord.
+            // Vi vill ju inte att stackars Knatte ska hamna hos kronofogden för att björnligan har luskat ut hans lösenord!
+            // Jag har däremot valt att separera dem i koden för att visa att jag skulle klara av att göra på det andra sättet.
+            // Säg till om du vill att jag ska ändra så att jag följer beskrivningen till fullo. Jag pillar gärna vidare med koden om det skulle vara så.
+            var menuName = "User name or password is incorect. Do you wish to try again or register a new user?";
+            var choices = new string[] { "Try Again","Regester new user", "Go Back To Main Menu" };
+            var choice = -1;
             Console.Write("Enter user name: ");
-            var customerNameExisting = Console.ReadLine();
+            var customerNameLogIn = Console.ReadLine();
             Console.Write("Enter password: ");
-            var customerPasswordExisting = Console.ReadLine();
-            //bool isNameFound = false;
+            var customerPasswordLogIn = Console.ReadLine();
+            var isNameFound = false;
             for (int i = 0; i < customers.Count; i++)
             {
-                if (customerNameExisting == customers[i].Name)
+                if (customerNameLogIn == customers[i].Name)
                 {
-                    //isNameFound = true;
-                    if (customerPasswordExisting == customers[i].Password)
+                    isNameFound = true;
+                    if (customers[i].ValidatePassword(customerPasswordLogIn))
                     {
-                        Program.indexOfLoggedInUser = i;
-                        return true;
+                        Customer.indexOfLoggedInUser = i;
+                        return;
                     }
-
                     else
-                        return GraphicMenu(menuName, choices) == 1;
+                        choice = GraphicMenu(menuName, choices);
                 }
             }
-            return GraphicMenu(menuName, choices) == 1;
+            if (!isNameFound)
+                choice = GraphicMenu(menuName, choices);
+            switch (choice)
+            {
+                case 0:
+                    // Try Again
+                    LogIn(customers);
+                    break;
+                case 1:
+                    // Regester New User
+                    CreateNewAcount(customers);
+                    break;
+                case 2:
+                    // Go Back To Main Menu
+                    break;
+                default:
+                    break;
+            }
         }
 
         private static void Shop(List<Customer> customers)
@@ -137,7 +168,7 @@ namespace Labb2
 
             var choices = new string[items.Length + 1];
             for (int i = 0; i < items.Length; i++)
-                choices[i] = $"{items[i].Name}\n{ConvertPrice(customers, items[i].Price)} {customers[Program.indexOfLoggedInUser].PreferedCurrency}";
+                choices[i] = $"{items[i].Name}\n{customers[Customer.indexOfLoggedInUser].ConvertPrice(items[i].Price)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}";
             choices[^1] = "Go Back";
 
             while (true)
@@ -145,34 +176,33 @@ namespace Labb2
                 int choice = GraphicMenu(menuName, choices);
 
                 if (choice < items.Length && choice >= 0)
-                    customers[Program.indexOfLoggedInUser].AddToCart(items[choice]);
+                    customers[Customer.indexOfLoggedInUser].AddToCart(items[choice]);
                 else
                     break;
             }
         }
 
-        //ToDO Implementera IDIscount
-        private static void ViewCart(List<Customer> customers)
+        private static void ViewCart(List<Customer> customers) 
         {
-            var totalSumOfCart = 0.0D;
+            var totalSumOfCart = customers[Customer.indexOfLoggedInUser].CalculateTotalSumOfCart();
             Console.Clear();
-            Console.WriteLine(customers[Program.indexOfLoggedInUser].Name);
-            Console.WriteLine(new string('-', customers[Program.indexOfLoggedInUser].Name.Length + 2));
+            Console.WriteLine(customers[Customer.indexOfLoggedInUser].Name);
+            Console.WriteLine(new string('-', customers[Customer.indexOfLoggedInUser].Name.Length + 2));
             Console.WriteLine("Cart:\n");
-            foreach (var item in customers[Program.indexOfLoggedInUser].Cart)
+            foreach (var item in customers[Customer.indexOfLoggedInUser].Cart)
             {
                 Console.WriteLine($"{item.Name}");
-                Console.WriteLine($"Price: {ConvertPrice(customers, item.Price)} {customers[Program.indexOfLoggedInUser].PreferedCurrency}");
+                Console.WriteLine($"Price: {customers[Customer.indexOfLoggedInUser].ConvertPrice(item.Price)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}");
                 Console.WriteLine($"Qty {item.Amount}");
-                Console.WriteLine($"Total: {ConvertPrice(customers, item.Price) * item.Amount} {customers[Program.indexOfLoggedInUser].PreferedCurrency}\n");
-                totalSumOfCart += ConvertPrice(customers, item.Price) * item.Amount;
+                Console.WriteLine($"Total: {customers[Customer.indexOfLoggedInUser].ConvertPrice(item.Price * item.Amount)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}\n");
             }
-            Console.WriteLine($"Total sum: {Math.Round(totalSumOfCart, 2)} {customers[Program.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
+            Console.WriteLine($"Total sum: {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
 
-            if (customers[Program.indexOfLoggedInUser] is IDiscount discountableCustomer)
+            if (customers[Customer.indexOfLoggedInUser] is IDiscount discountableCustomer)
+            {
                 totalSumOfCart = Math.Round(discountableCustomer.AddDiscount(totalSumOfCart), 2);
-
-            Console.WriteLine($"Your price: {totalSumOfCart} {customers[Program.indexOfLoggedInUser].PreferedCurrency}\n");
+                Console.WriteLine($"Your price: {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
+            }
         }
 
         private static void CheckOut(List<Customer> customers)
@@ -208,13 +238,13 @@ namespace Labb2
         {
             Console.Clear();
             Console.Write("Enter card number (16 digits): ");
-            string cardNumber = Console.ReadLine();
+            string cardNumber = Console.ReadLine().Trim();
             Console.Write("Enter expiration date (4 digits): ");
-            string cardExpirationDate = Console.ReadLine();
+            string cardExpirationDate = Console.ReadLine().Trim();
             Console.Write("Enter name of Cardholder: ");
             string cardholder = Console.ReadLine();
             Console.Write("Enter card CVC (3 digits): ");
-            string cardCVC = Console.ReadLine();
+            string cardCVC = Console.ReadLine().Trim();
 
             if (cardNumber.Length != 16 || cardExpirationDate.Length != 4 || cardCVC.Length != 3)
                 return false;
@@ -235,13 +265,13 @@ namespace Labb2
 
         private static void PayByOwl(List<Customer> customers)
         {
-            var totalSumOfCart = ConvertPrice(customers, customers[Program.indexOfLoggedInUser].Cart.Sum(item => item.Price * item.Amount));
+            var totalSumOfCart = customers[Customer.indexOfLoggedInUser].CalculateTotalSumOfCart();
 
-            if (customers[Program.indexOfLoggedInUser] is IDiscount discountableCustomer)
+            if (customers[Customer.indexOfLoggedInUser] is IDiscount discountableCustomer)
                 totalSumOfCart = Math.Round(discountableCustomer.AddDiscount(totalSumOfCart), 2);
 
             Console.Clear();
-            Console.WriteLine($"Send an owl with {totalSumOfCart} {customers[Program.indexOfLoggedInUser].PreferedCurrency} to:");
+            Console.WriteLine($"Send an owl with {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} to:");
             Console.WriteLine("Cloudberry Path 7");
             Console.WriteLine("Brugmansia Forest 777 77");
             Console.WriteLine("Feywild");
@@ -258,8 +288,9 @@ namespace Labb2
             Console.Clear();
             Console.WriteLine("Payment successfull!");
             Console.WriteLine("Your order will be delivered by moose.");
-            Console.WriteLine("The moose will magically know exactly were you are and will arrive within 1-5 business days.");
-            customers[Program.indexOfLoggedInUser].Cart.Clear();
+            Console.WriteLine("The moose will magically know exactly were you are and will arrive within 1-5 business days.\n\n");
+            Console.WriteLine("Delivery by DHÄlg®\n\n\n");
+            customers[Customer.indexOfLoggedInUser].Cart.Clear();
             Console.Write("Press enter to go back to store...");
             Console.ReadLine();
         }
@@ -278,8 +309,8 @@ namespace Labb2
                     break;
                 case 1:
                     // Yes
-                    // Spara ner allt till fil.
-                    Program.indexOfLoggedInUser = -1;
+                    //ToDo Spara ner allt till fil.
+                    Customer.indexOfLoggedInUser = -1;
                     break;
                 default:
                     break;
@@ -289,14 +320,9 @@ namespace Labb2
         private static void ChangeCurrency(List<Customer> customers)
         {
             var menuName = "Change Currency";
-            var choices = customers[Program.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray();
+            var choices = customers[Customer.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray();
             int choice = GraphicMenu(menuName, choices);
-            customers[Program.indexOfLoggedInUser].ChangeCurrency(choices[choice]);
-        }
-
-        private static double ConvertPrice(List<Customer> customers, double price)
-        {
-            return Math.Round(price / customers[Program.indexOfLoggedInUser].CurrencyNameValue[(customers[Program.indexOfLoggedInUser].PreferedCurrency)], 2);
+            customers[Customer.indexOfLoggedInUser].ChangeCurrency(choices[choice]);
         }
 
         private static int GraphicMenu(string menuName, string[] choices)
@@ -306,6 +332,7 @@ namespace Labb2
             Console.Clear();
             while (true)
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.SetCursorPosition(0, 0);
                 Console.WriteLine(menuName);
                 Console.WriteLine(line);
@@ -316,7 +343,7 @@ namespace Labb2
                         Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(choices[i]);
                     if (i == choice)
-                        Console.ResetColor();
+                        Console.ForegroundColor = ConsoleColor.Green;
                 }
 
                 var keyPresss = Console.ReadKey().Key;
@@ -331,6 +358,7 @@ namespace Labb2
                         break;
                     case ConsoleKey.Enter:
                         Console.Clear();
+                        Console.ResetColor();
                         return choice;
                     default:
                         break;

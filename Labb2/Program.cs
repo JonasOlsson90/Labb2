@@ -5,7 +5,7 @@ namespace Labb2
 {
     class Program
     {
-        internal static int indexOfLoggedInUser = -1;
+        //ToDo Implementera filläsning och filskrivning
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -18,7 +18,7 @@ namespace Labb2
 
             while (true)
             {
-                if (indexOfLoggedInUser == -1)
+                if (Customer.indexOfLoggedInUser == -1)
                     Menu.MainMenu(customers);
                 else
                     Menu.LoggedInMenu(customers);
