@@ -11,7 +11,7 @@ namespace Labb2
         internal static int indexOfLoggedInUser = -1;
 
         internal string Name { get; private protected set; }
-        private protected string Password { get; set; }
+        internal string Password { get; private protected set; }
         public List<Item> Cart { get; private protected set; }
         public string PreferedCurrency { get; private protected set; }
 
@@ -70,9 +70,15 @@ namespace Labb2
             PreferedCurrency = currency;
         }
 
+        internal virtual string GetCustomerType()
+        {
+            return "Regular";
+        }
+
         public override string ToString()
         {
-            string customerInfo = $"Name: {Name}\nPassword: {Password}\n\nCart:\n\n";
+            //ToDO Skriv ut vilken typ av kund
+            string customerInfo = $"Name: {Name}\nPassword: {Password}\nCustomer Type: {GetCustomerType()}\n\nCart:\n\n";
 
             foreach (var item in Cart)
                 customerInfo += $"Item: {item.Name}\nPrice: {Math.Round(item.Price / CurrencyNameValue[PreferedCurrency], 2)} {PreferedCurrency}\nQty: {item.Amount}\n\n";

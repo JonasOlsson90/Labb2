@@ -17,5 +17,10 @@ namespace Labb2
             // return price with 5% d
             return originalPrice * 0.95;
         }
+
+        internal override string GetCustomerType()
+        {
+            return "Bronze";
+        }
     }
 }

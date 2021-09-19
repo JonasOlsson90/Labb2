@@ -9,12 +9,7 @@ namespace Labb2
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
-            var customers = new List<Customer>
-            {
-                new BronzeCustomer("Knatte", "123"),
-                new SilverCustomer("Fnatte", "321"),
-                new GoldCustomer("Tjatte", "213")
-            };
+            List<Customer> customers = IO.ReadFromFile();
 
             while (true)
             {

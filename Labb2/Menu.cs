@@ -99,9 +99,11 @@ namespace Labb2
                 }
             if (isNameTaken)
                 return;
+            //ToDo Förebygg tomt lösenord
             Console.Write("Enter password: ");
             var customerPasswordNew = Console.ReadLine();
             customers.Add(new Customer(customerNameNew, customerPasswordNew));
+            IO.WriteToFile(customers[customers.Count - 1]);
             Customer.indexOfLoggedInUser = customers.Count - 1;
         }
 
