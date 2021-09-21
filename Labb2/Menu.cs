@@ -8,7 +8,9 @@ namespace Labb2
 {
     class Menu
     {
-        //ToDo Implementera filläsning och filskrivning
+        // Menyerna refererar ofta till metoden GraphicMenu(string menuName, string[] choices).
+        // Denna metod returnerar en integer motsvarande det val användaren gjort.
+        // Metoden ligger längst ner bland metoderna i denna fil.
         internal static void MainMenu(List<Customer> customers)
         {
             var menuName = "Main Menu";
@@ -20,12 +22,12 @@ namespace Labb2
                     CreateNewAcount(customers);
                     break;
                 case 1:
-                    // Logg In
                     LogIn(customers);
                     break;
                 case 2:
                     // Exit Shop
                     Console.CursorVisible = true;
+                    Console.ResetColor();
                     Environment.Exit(0);
                     break;
             }
@@ -44,31 +46,21 @@ namespace Labb2
                     break;
                 case 1:
                     ViewCart(customers);
-                    Console.Write("Press enter to continue shopping...");
-                    Console.ReadLine();
+                    Console.Write("Press any key to continue shopping...");
+                    Console.ReadKey(true);
                     break;
                 case 2:
                     ChangeCurrency(customers);
                     break;
                 case 3:
-                    // Check Out
-                    if (customers[Customer.indexOfLoggedInUser].Cart.Count == 0)
-                    {
-                        Console.Write("Cart is empty. Press enter to continue shopping...");
-                        Console.ReadLine();
-                        break;
-                    }
-                    ViewCart(customers);
-                    Console.Write("Press enter to go to payment methods...");
-                    Console.ReadLine();
                     CheckOut(customers);
                     break;
                 case 4:
                     // Customer info (visas endast som namnet på den inloggade kunden i menyn).
                     Console.WriteLine(customers[Customer.indexOfLoggedInUser].ToString());
                     Console.WriteLine();
-                    Console.Write("Press enter to go back...");
-                    Console.ReadLine();
+                    Console.Write("Press any key to go back...");
+                    Console.ReadKey(true);
                     break;
                 case 5:
                     LoggOut();
@@ -82,28 +74,41 @@ namespace Labb2
         {
             Console.Write("Enter user name: ");
             var customerNameNew = Console.ReadLine();
-            bool isNameTaken = false;
             if (string.IsNullOrEmpty(customerNameNew))
             {
-                Console.Write("You have to enter a user name. Press enter to continue...");
-                Console.ReadLine();
+                Console.Write("You have to enter a user name. Press any key to continue...");
+                Console.ReadKey(true);
+                Console.Clear();
+                CreateNewAcount(customers);
                 return;
             }
             foreach (var customer in customers)
                 if (customer.Name == customerNameNew)
                 {
                     Console.Write("User name already excists. Press any key to continue...");
-                    Console.ReadLine();
-                    isNameTaken = true;
-                    break;
+                    Console.ReadKey(true);
+                    return;
                 }
-            if (isNameTaken)
-                return;
-            //ToDo Förebygg tomt lösenord
             Console.Write("Enter password: ");
             var customerPasswordNew = Console.ReadLine();
+            if (string.IsNullOrEmpty(customerPasswordNew))
+            {
+                Console.Write("You have to enter a user password. Press any key to continue...");
+                Console.ReadKey(true);
+                Console.Clear();
+                CreateNewAcount(customers);
+                return;
+            }
             customers.Add(new Customer(customerNameNew, customerPasswordNew));
-            IO.WriteToFile(customers[customers.Count - 1]);
+
+            // Jag väljer att skriva den nyregistrerade kunden till filen direkt. Det har lite nackdelar,
+            // men fördelen är att kunden finns kvar om något skulle hända om appen stängs oväntat.
+            // Den stärsta nackdelen är att det är lite krpngligare att spara kundens valuta,
+            // så nu defaultar det bara till SEK och så får man ändra igen när man har loggat in.
+            // Självklart sparas valutan om man bara loggar ut och inte stänger appen.
+            IO.WriteToFile(customers[^1]);
+
+            // När man registrerat en ny användare loggas den nya användaren in.
             Customer.indexOfLoggedInUser = customers.Count - 1;
         }
 
@@ -111,10 +116,13 @@ namespace Labb2
         {
             // Till Niklas:
             // Jag har medvetet valt att inte särskilja om lösenordet eller användarnamnet är felaktigt.
-            // Detta är för att jag har förstått att det anses vara lite av en säkerhetsrisk på hemsidor då man lätt kan få reda på om ett konto existerar och börja prova lösenord.
+            // Detta är för att jag har förstått att det anses vara lite av en säkerhetsrisk på hemsidor
+            // då man lätt kan få reda på om ett konto existerar och börja pröva lösenord.
             // Vi vill ju inte att stackars Knatte ska hamna hos kronofogden för att björnligan har luskat ut hans lösenord!
             // Jag har däremot valt att separera dem i koden för att visa att jag skulle klara av att göra på det andra sättet.
-            // Säg till om du vill att jag ska ändra så att jag följer beskrivningen till fullo. Jag pillar gärna vidare med koden om det skulle vara så.
+            // Säg till om du vill att jag ska ändra så att jag följer beskrivningen till fullo.
+            // Jag pillar gärna vidare med koden om det skulle vara så.
+
             var menuName = "User name or password is incorect. Do you wish to try again or register a new user?";
             var choices = new string[] { "Try Again","Regester new user", "Go Back To Main Menu" };
             var choice = -1;
@@ -160,6 +168,8 @@ namespace Labb2
         private static void Shop(List<Customer> customers)
         {
             var menuName = "Shop";
+
+            // Om man vill lägga till fler varor i affären är det bara att skriva in dem med pris i SEK här.
             var items = new Item[]
             {
                 new Item("Potion of Healing", 400),
@@ -178,8 +188,10 @@ namespace Labb2
                 int choice = GraphicMenu(menuName, choices);
 
                 if (choice < items.Length && choice >= 0)
+                    // Lägg till varan i kundens varukorg.
                     customers[Customer.indexOfLoggedInUser].AddToCart(items[choice]);
                 else
+                    // Go Back är det enda valet som inte motsvarar en vara, så då återgår man till huvudmenyn.
                     break;
             }
         }
@@ -191,24 +203,42 @@ namespace Labb2
             Console.WriteLine(customers[Customer.indexOfLoggedInUser].Name);
             Console.WriteLine(new string('-', customers[Customer.indexOfLoggedInUser].Name.Length + 2));
             Console.WriteLine("Cart:\n");
-            foreach (var item in customers[Customer.indexOfLoggedInUser].Cart)
-            {
-                Console.WriteLine($"{item.Name}");
-                Console.WriteLine($"Price: {customers[Customer.indexOfLoggedInUser].ConvertPrice(item.Price)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}");
-                Console.WriteLine($"Qty {item.Amount}");
-                Console.WriteLine($"Total: {customers[Customer.indexOfLoggedInUser].ConvertPrice(item.Price * item.Amount)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}\n");
-            }
-            Console.WriteLine($"Total sum: {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
 
-            if (customers[Customer.indexOfLoggedInUser] is IDiscount discountableCustomer)
+            if (customers[Customer.indexOfLoggedInUser].Cart.Count == 0)
+                Console.WriteLine("Your cart is empty!\n");
+
+            else
             {
-                totalSumOfCart = Math.Round(discountableCustomer.AddDiscount(totalSumOfCart), 2);
-                Console.WriteLine($"Your price: {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
+                foreach (var item in customers[Customer.indexOfLoggedInUser].Cart)
+                {
+                    Console.WriteLine($"{item.Name}");
+                    Console.WriteLine($"Price: {customers[Customer.indexOfLoggedInUser].ConvertPrice(item.Price)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}");
+                    Console.WriteLine($"Qty {item.Amount}");
+                    Console.WriteLine($"Total: {customers[Customer.indexOfLoggedInUser].ConvertPrice(item.Price * item.Amount)} {customers[Customer.indexOfLoggedInUser].PreferedCurrency}\n");
+                }
+                Console.WriteLine($"Total sum: {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
+
+                if (customers[Customer.indexOfLoggedInUser] is IDiscount discountableCustomer)
+                {
+                    totalSumOfCart = Math.Round(discountableCustomer.AddDiscount(totalSumOfCart), 2);
+                    Console.WriteLine($"Your price: {totalSumOfCart} {customers[Customer.indexOfLoggedInUser].PreferedCurrency} (VAT charges may apply)\n");
+                }
             }
         }
 
         private static void CheckOut(List<Customer> customers)
         {
+            if (customers[Customer.indexOfLoggedInUser].Cart.Count == 0)
+            {
+                Console.Write("Cart is empty. Press any key to continue shopping...");
+                Console.ReadKey(true);
+                return;
+            }
+
+            ViewCart(customers);
+            Console.Write("Press any key to go to payment methods...");
+            Console.ReadKey(true);
+
             var menuName = "Payment Methods";
             var choices = new string[] { "Visa/Mastercard", "Pay by Owl", "Continue shopping" };
             int choice = GraphicMenu(menuName, choices);
@@ -220,8 +250,8 @@ namespace Labb2
                         PaymentSuccessfull(customers);
                     else
                     {
-                        Console.Write("No valid Visa/Mastercard. Press enter to go back to payment methods...");
-                        Console.ReadLine();
+                        Console.Write("No valid Visa/Mastercard. Press any key to go back to payment methods...");
+                        Console.ReadKey(true);
                         CheckOut(customers);
                     }                    
                     break;
@@ -280,8 +310,8 @@ namespace Labb2
             Console.WriteLine();
             Console.WriteLine("The delivery moose will know if payment is on its way or not.");
             Console.WriteLine("Our advice is not to try any tricks, but it's down to you.");
-            Console.Write("Press enter to continue...");
-            Console.ReadLine();
+            Console.Write("Press any key to continue...");
+            Console.ReadKey(true);
             PaymentSuccessfull(customers);
         }
 
@@ -293,13 +323,12 @@ namespace Labb2
             Console.WriteLine("The moose will magically know exactly were you are and will arrive within 1-5 business days.\n\n");
             Console.WriteLine("Delivery by DHÄlg®\n\n\n");
             customers[Customer.indexOfLoggedInUser].Cart.Clear();
-            Console.Write("Press enter to go back to store...");
-            Console.ReadLine();
+            Console.Write("Press any key to go back to store...");
+            Console.ReadKey(true);
         }
 
         private static void LoggOut()
         {
-            // Implementera
             var menuName = "Are You Sure?";
             var choices = new string[] { "No", "Yes" };
             int choice = GraphicMenu(menuName, choices);
@@ -311,7 +340,6 @@ namespace Labb2
                     break;
                 case 1:
                     // Yes
-                    //ToDo Spara ner allt till fil.
                     Customer.indexOfLoggedInUser = -1;
                     break;
                 default:
@@ -322,7 +350,7 @@ namespace Labb2
         private static void ChangeCurrency(List<Customer> customers)
         {
             var menuName = "Change Currency";
-            var choices = customers[Customer.indexOfLoggedInUser].CurrencyNameValue.Keys.ToArray();
+            var choices = Customer.CurrencyNameValue.Keys.ToArray();
             int choice = GraphicMenu(menuName, choices);
             customers[Customer.indexOfLoggedInUser].ChangeCurrency(choices[choice]);
         }
@@ -330,8 +358,11 @@ namespace Labb2
         private static int GraphicMenu(string menuName, string[] choices)
         {
             var choice = 0;
+            // Linjens längd ändras dynamisk efter längden på menyns namn.
             var line = new string('-', menuName.Length + 2);
+
             Console.Clear();
+
             while (true)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -339,6 +370,8 @@ namespace Labb2
                 Console.WriteLine(menuName);
                 Console.WriteLine(line);
 
+                // Logik för att skriva ut menyn.
+                // Det val användaren för närvarande står på skrivs ut i rött medan de andra valen skrivs ut i grönt.
                 for (int i = 0; i < choices.Length; i++)
                 {
                     if (i == choice)
@@ -348,8 +381,14 @@ namespace Labb2
                         Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                var keyPresss = Console.ReadKey().Key;
+                // Sparar användarens knapptryck utan att skriva ut det.
+                var keyPresss = Console.ReadKey(true).Key;
 
+                // Logik för att hantera användarens input.
+                // Endast tre knappar påverkar programmet visuellt och funktionellt: uppåtpil, neråtpil och enter.
+                // Man kan endast växla mellan de val som skickats in i metoden.
+                // Valet görs först när användaren trycker på enter.
+                // Då returneras en integer som hanteras i metoden som kallade på denna metod.
                 switch (keyPresss)
                 {
                     case ConsoleKey.DownArrow:
@@ -360,7 +399,6 @@ namespace Labb2
                         break;
                     case ConsoleKey.Enter:
                         Console.Clear();
-                        Console.ResetColor();
                         return choice;
                     default:
                         break;

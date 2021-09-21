@@ -14,7 +14,7 @@ namespace Labb2
 
         public double AddDiscount(double originalPrice)
         {
-            // return price with 10% discount
+            // Returnerar pris med 10% avdraget.
             return originalPrice * 0.90;
         }
 
