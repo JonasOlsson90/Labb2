@@ -72,40 +72,33 @@ namespace Labb2
 
         private static void CreateNewAcount(List<Customer> customers)
         {
-            Console.Write("Enter user name: ");
-            var customerNameNew = Console.ReadLine();
+            var customerNameNew = ValidateInput("Enter user name");
+            // Strängen blir bara null om användaren tryckt på escape för att komma ur input
             if (string.IsNullOrEmpty(customerNameNew))
-            {
-                Console.Write("You have to enter a user name. Press any key to continue...");
-                Console.ReadKey(true);
-                Console.Clear();
-                CreateNewAcount(customers);
                 return;
-            }
+
             foreach (var customer in customers)
                 if (customer.Name == customerNameNew)
                 {
                     Console.Write("User name already excists. Press any key to continue...");
                     Console.ReadKey(true);
+                    CreateNewAcount(customers);
                     return;
                 }
-            Console.Write("Enter password: ");
-            var customerPasswordNew = Console.ReadLine();
+
+            var customerPasswordNew = ValidateInput("Enter password");
+
+            // Strängen blir bara null om användaren tryckt på escape för att komma ur input
             if (string.IsNullOrEmpty(customerPasswordNew))
-            {
-                Console.Write("You have to enter a user password. Press any key to continue...");
-                Console.ReadKey(true);
-                Console.Clear();
-                CreateNewAcount(customers);
                 return;
-            }
+
             customers.Add(new Customer(customerNameNew, customerPasswordNew));
 
             // Jag väljer att skriva den nyregistrerade kunden till filen direkt. Det har lite nackdelar,
             // men fördelen är att kunden finns kvar om något skulle hända om appen stängs oväntat.
-            // Den stärsta nackdelen är att det är lite krpngligare att spara kundens valuta,
-            // så nu defaultar det bara till SEK och så får man ändra igen när man har loggat in.
-            // Självklart sparas valutan om man bara loggar ut och inte stänger appen.
+            // De stärsta nackdelarna är att det är lite knepigare att spara kundens valuta och kundvagn,
+            // så nu defaultar det bara till SEK och så får man ändra igen när man har loggat in och kundvagnen sparas inte.
+            // Självklart sparas valutan och kundvagnen om man bara loggar ut och inte stänger appen.
             IO.WriteToFile(customers[^1]);
 
             // När man registrerat en ny användare loggas den nya användaren in.
@@ -353,6 +346,42 @@ namespace Labb2
             var choices = Customer.CurrencyNameValue.Keys.ToArray();
             int choice = GraphicMenu(menuName, choices);
             customers[Customer.indexOfLoggedInUser].ChangeCurrency(choices[choice]);
+        }
+
+        private static string ValidateInput(string inputInfo)
+        {
+            Console.Clear();
+            string input = "";
+            ConsoleKeyInfo keyPress;
+            do
+            {
+                Console.SetCursorPosition(0, 0);
+                // Mellanslaget efter input gör att man kan radera input visuellt.
+                Console.WriteLine($"{inputInfo}: {input} ");
+                keyPress = Console.ReadKey(true);
+
+                if (input.Length < 20)
+                {
+                    // Endast siffror och bokstäver kan skrivas in för att undvika till exempel kommatecken, vilket är en säkerhetsrisk.
+                    if ((keyPress.KeyChar >= '0' && keyPress.KeyChar <= '9') ||
+                        (keyPress.KeyChar >= 'A' && keyPress.KeyChar <= 'Z') ||
+                        (keyPress.KeyChar >= 'a' && keyPress.KeyChar <= 'z'))
+                        input += keyPress.KeyChar;
+                }
+
+                // Backspace raderar som den ska
+                if (keyPress.Key == ConsoleKey.Backspace)
+                    if (input.Length > 0)
+                        input = input.Substring(0, input.Length - 1);
+
+                // Gör det möjligt att ta sig ur input med escape. Detta returnerar null vilket man får hantera där man kallar på metoden.
+                if (keyPress.Key == ConsoleKey.Escape)
+                    return null;
+
+            // Loopen går tills man har skrivit in något och trycker på enter om man inte brutit loopen med escape tidigare.
+            } while (keyPress.Key != ConsoleKey.Enter || input.Length == 0);
+
+            return input;
         }
 
         private static int GraphicMenu(string menuName, string[] choices)
