@@ -119,10 +119,12 @@ namespace Labb2
             var menuName = "User name or password is incorect. Do you wish to try again or register a new user?";
             var choices = new string[] { "Try Again","Regester new user", "Go Back To Main Menu" };
             var choice = -1;
-            Console.Write("Enter user name: ");
-            var customerNameLogIn = Console.ReadLine();
-            Console.Write("Enter password: ");
-            var customerPasswordLogIn = Console.ReadLine();
+            var customerNameLogIn = ValidateInput("Enter user name");
+            if (customerNameLogIn == null)
+                return;
+            var customerPasswordLogIn = ValidateInput("Enter password");
+            if (customerPasswordLogIn == null)
+                return;
             var isNameFound = false;
             for (int i = 0; i < customers.Count; i++)
             {

@@ -31,6 +31,7 @@ namespace Labb2
             // Sedan läses informationen in
             var customers = new List<Customer>();
             var users = File.ReadAllLines(pathToCustomerTextFile);
+            var isTextFileTamperedWith = false;
 
             foreach (var user in users)
             {
@@ -46,18 +47,26 @@ namespace Labb2
                         customers.Add(new SilverCustomer(temp[0], temp[1]));
                     if (temp[2] == "Gold")
                         customers.Add(new GoldCustomer(temp[0], temp[1]));
+                    if (temp.Length != 3)
+                        isTextFileTamperedWith = true;
                 }
-                // Om någon ändå har varit och pillat med textfilen ska de känna rädsla, skuld och skam!
-                // Men programmet ska inte krascha för det!
                 catch(IndexOutOfRangeException)
                 {
-                    Console.Clear();
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("You have tampered with the textfile and thus awakened the great wrath of Cthulhu!!!\n\n");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("Press any key to continue...");
-                    Console.ReadKey(true);
+                    isTextFileTamperedWith = true;
                 }
+
+            }
+
+            // Om någon ändå har varit och pillat med textfilen ska de känna rädsla, skuld och skam!
+            // Men programmet ska inte krascha för det!
+            if (isTextFileTamperedWith)
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("You have tampered with the textfile and thus awakened the great wrath of Cthulhu!!!\n\n");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("Press any key to continue...");
+                Console.ReadKey(true);
             }
 
             return customers;
