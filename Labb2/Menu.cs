@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Labb2
 {
@@ -358,7 +356,7 @@ namespace Labb2
             do
             {
                 Console.SetCursorPosition(0, 0);
-                // Mellanslaget efter input gör att man kan radera input visuellt.
+                // Mellanslaget efter {input} gör att man kan radera input visuellt.
                 Console.WriteLine($"{inputInfo}: {input} ");
                 keyPress = Console.ReadKey(true);
 

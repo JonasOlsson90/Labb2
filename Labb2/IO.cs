@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace Labb2
@@ -72,7 +69,7 @@ namespace Labb2
             return customers;
         }
 
-        internal static void CreateFile()
+        private static void CreateFile()
         {
             Directory.CreateDirectory(pathToFolder);
             using FileStream fs = File.Create(pathToCustomerTextFile);
